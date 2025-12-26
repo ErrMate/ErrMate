@@ -1,73 +1,104 @@
 # ErrMate
 
+<div align="center">
+
 **Paste any error. Understand it. Fix it.**
 
-ErrMate is an AI-powered error analysis tool that helps developers understand and fix errors quickly. Built with Next.js, OpenRouter AI, Stripe, and PostgreSQL.
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748)](https://www.prisma.io/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## Features
+An AI-powered error analysis tool that helps developers understand and fix errors quickly.
 
-- 🔍 **Error Analysis**: Paste any error or stack trace and get structured explanations
-- 📝 **Context Support**: Add additional context from logs, GitHub issues, or StackOverflow
-- 🎯 **Tech-Specific**: Select your tech context (JavaScript, React, Node.js, Browser, Other)
-- 🆓 **Free Tier**: 3 explanations per day
-- 💎 **Pro Tier**: Unlimited explanations via Stripe subscription ($9.99/month)
-- 🎨 **Glassmorphic UI**: Beautiful, modern design with glassmorphic effects
-- 🔐 **Google Auth**: Secure authentication via NextAuth.js
+[Features](#-features) • [Quick Start](#-quick-start) • [Deployment](#-deployment) • [Contributing](#-contributing)
 
-## Tech Stack
+</div>
 
-- **Frontend**: Next.js 14 (App Router) + React + TypeScript
-- **Styling**: Tailwind CSS with glassmorphic design
+---
+
+## ✨ Features
+
+- 🔍 **Intelligent Error Analysis** - Paste any error or stack trace and get structured, detailed explanations
+- 📝 **Context Support** - Add additional context from logs, GitHub issues, or StackOverflow for better analysis
+- 🎯 **Tech-Specific Analysis** - Select your tech context (JavaScript, React, Node.js, Python, Java, and more)
+- 🆓 **Free Tier** - 2 explanations overall (anonymous) or 3 per day (signed in)
+- 💎 **Pro Tier** - Unlimited explanations via Stripe subscription ($9.99/month)
+- 🎨 **Modern UI** - Beautiful, responsive design with glassmorphic effects
+- 🔐 **Secure Auth** - Google OAuth authentication via NextAuth.js
+- 📊 **Query History** - View and manage your past error analyses
+- 🔗 **Resource Links** - Get relevant documentation, blog posts, and Stack Overflow links
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14 (App Router) + React 18 + TypeScript
+- **Styling**: Tailwind CSS
 - **Authentication**: NextAuth.js with Google OAuth
-- **AI**: OpenRouter API (GPT-4o-mini)
-- **Payments**: Stripe
+- **AI**: OpenRouter API
+- **Payments**: Stripe (subscriptions)
 - **Database**: PostgreSQL with Prisma ORM
 - **Deployment**: Vercel-ready
 
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- PostgreSQL database
+- PostgreSQL database (free options: [Supabase](https://supabase.com) or [Neon](https://neon.tech))
 - Google OAuth credentials
-- OpenRouter API key
-- Stripe account (for payments)
+- OpenRouter API key ([get one here](https://openrouter.ai))
+- Stripe account ([sign up here](https://stripe.com))
 
 ### Installation
 
-1. **Clone and install dependencies:**
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/yourusername/errmate.git
+cd errmate
+```
+
+2. **Install dependencies**
 
 ```bash
 npm install
 ```
 
-2. **Set up environment variables:**
+3. **Set up environment variables**
 
-Copy `.env.example` to `.env` and fill in your values:
+Create a `.env` file in the root directory:
 
-```bash
-cp .env.example .env
+```env
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=<generate with: openssl rand -base64 32>
+
+# Google OAuth
+GOOGLE_CLIENT_ID=<from Google Cloud Console>
+GOOGLE_CLIENT_SECRET=<from Google Cloud Console>
+
+# Database
+DATABASE_URL=<your PostgreSQL connection string>
+
+# OpenRouter AI
+OPENROUTER_API_KEY=<from openrouter.ai>
+
+# Stripe
+STRIPE_SECRET_KEY=<from Stripe Dashboard>
+STRIPE_WEBHOOK_SECRET=<from Stripe Dashboard>
+
+# App URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Required environment variables:
-- `NEXTAUTH_URL`: Your app URL (http://localhost:3000 for dev)
-- `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
-- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`: From Google Cloud Console
-- `DATABASE_URL`: Your PostgreSQL connection string
-- `OPENROUTER_API_KEY`: From https://openrouter.ai
-- `STRIPE_SECRET_KEY`: From Stripe Dashboard
-- `STRIPE_WEBHOOK_SECRET`: From Stripe Dashboard (webhook endpoint)
-- `NEXT_PUBLIC_APP_URL`: Your app URL
-
-3. **Set up the database:**
+4. **Set up the database**
 
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-4. **Run the development server:**
+5. **Run the development server**
 
 ```bash
 npm run dev
@@ -75,134 +106,170 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Google OAuth Setup
+## 📚 Service Setup
+
+### Google OAuth
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials
+3. Enable **Google+ API**
+4. Create OAuth 2.0 credentials (Web application)
 5. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
 6. Copy Client ID and Client Secret to `.env`
 
-## Stripe Setup
+### Stripe
 
 1. Create a Stripe account at [stripe.com](https://stripe.com)
-2. Get your API keys from the Dashboard
-3. Set up a webhook endpoint:
+2. Get your API keys from Dashboard → Developers → API keys
+3. Set up a webhook endpoint (after deployment):
    - URL: `https://your-domain.com/api/webhook`
    - Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
-4. Copy the webhook secret to `STRIPE_WEBHOOK_SECRET`
+4. Copy the webhook signing secret to `STRIPE_WEBHOOK_SECRET`
 
-## Database Schema
+### OpenRouter
 
-The app uses Prisma with the following models:
-- `User`: User accounts (via NextAuth)
-- `Account`: OAuth account connections
-- `Session`: User sessions
-- `UsageTracking`: Daily usage tracking for free tier
-- `Subscription`: Stripe subscription status
+1. Go to [openrouter.ai](https://openrouter.ai)
+2. Sign up and create an API key
+3. Add credits to your account
+4. Copy the API key to `OPENROUTER_API_KEY`
 
-## API Routes
-
-- `POST /api/explain-error`: Analyzes error using OpenRouter AI
-- `POST /api/create-checkout`: Creates Stripe checkout session
-- `POST /api/webhook`: Handles Stripe webhook events
-- `GET /api/usage`: Returns current usage count and subscription status
-
-## Deployment to Vercel
-
-1. **Push to GitHub:**
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin <your-repo-url>
-git push -u origin main
-```
-
-2. **Deploy to Vercel:**
-
-- Import your GitHub repository in Vercel
-- Add all environment variables in Vercel dashboard
-- Update `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` to your Vercel URL
-- Deploy!
-
-3. **Update OAuth redirect URI:**
-
-- Add your Vercel URL to Google OAuth authorized redirect URIs
-- Format: `https://your-app.vercel.app/api/auth/callback/google`
-
-4. **Update Stripe webhook:**
-
-- Add your Vercel webhook URL in Stripe Dashboard
-- Format: `https://your-app.vercel.app/api/webhook`
-
-5. **Run database migrations:**
-
-```bash
-npx prisma db push
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 ErrMate/
 ├── app/
 │   ├── api/
-│   │   ├── auth/[...nextauth]/route.ts
-│   │   ├── explain-error/route.ts
-│   │   ├── create-checkout/route.ts
-│   │   ├── webhook/route.ts
-│   │   └── usage/route.ts
-│   ├── app/
-│   │   └── page.tsx          # Main app page
-│   ├── layout.tsx
-│   ├── page.tsx              # Landing page
-│   ├── providers.tsx
-│   └── globals.css
+│   │   ├── auth/[...nextauth]/route.ts    # NextAuth handler
+│   │   ├── explain-error/route.ts         # AI error analysis
+│   │   ├── create-checkout/route.ts       # Stripe checkout
+│   │   ├── webhook/route.ts               # Stripe webhooks
+│   │   ├── usage/route.ts                 # Usage tracking
+│   │   ├── queries/route.ts               # Query history
+│   │   └── cancel-subscription/route.ts   # Subscription management
+│   ├── error-analyzer/
+│   │   └── page.tsx                       # Main error analyzer page
+│   ├── query-history/
+│   │   └── page.tsx                       # Query history page
+│   ├── layout.tsx                         # Root layout
+│   ├── page.tsx                           # Landing page
+│   └── globals.css                        # Global styles
 ├── components/
-│   ├── Header.tsx
-│   └── Footer.tsx
+│   ├── Header.tsx                         # Navigation header
+│   ├── Footer.tsx                         # Footer
+│   ├── Logo.tsx                           # Logo component
+│   ├── BugIcon.tsx                        # Bug icon component
+│   ├── Tooltip.tsx                        # Tooltip component
+│   ├── Modal.tsx                          # Modal component
+│   ├── ConfirmModal.tsx                   # Confirmation modal
+│   ├── Dropdown.tsx                       # Dropdown component
+│   ├── ResourceTabs.tsx                   # Resource tabs
+│   └── UserProfileDropdown.tsx           # User profile dropdown
 ├── lib/
-│   ├── prisma.ts
-│   └── auth.ts
+│   ├── prisma.ts                          # Prisma client
+│   └── auth.ts                            # NextAuth configuration
 ├── prisma/
-│   └── schema.prisma
+│   └── schema.prisma                      # Database schema
+├── public/
+│   ├── favicon.svg                        # Favicon
+│   └── logo_1.png                         # Logo image
 └── package.json
 ```
 
-## Features in Detail
+## 🗄️ Database Schema
+
+The app uses Prisma with the following models:
+
+- **User** - User accounts (via NextAuth)
+- **Account** - OAuth account connections (NextAuth)
+- **Session** - User sessions (NextAuth)
+- **UsageTracking** - Daily usage tracking for free tier
+- **Subscription** - Stripe subscription status
+- **QueryResponse** - Stored query history and explanations
+
+## 🔌 API Routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/explain-error` | POST | Analyzes error using OpenRouter AI |
+| `/api/create-checkout` | POST | Creates Stripe checkout session |
+| `/api/webhook` | POST | Handles Stripe webhook events |
+| `/api/usage` | GET | Returns current usage count and subscription status |
+| `/api/queries` | GET | Returns user's query history |
+| `/api/cancel-subscription` | POST | Cancels user subscription |
+
+## 🚀 Deployment
+
+### Free Deployment Guide
+
+**Complete step-by-step guide:** See [FREE_DEPLOYMENT.md](./FREE_DEPLOYMENT.md)
+
+This comprehensive guide covers:
+- ✅ Deploying to Vercel (FREE hosting)
+- ✅ Setting up free PostgreSQL database (Supabase/Neon)
+- ✅ Configuring all services (Google OAuth, Stripe, OpenRouter)
+- ✅ Adding custom domain (optional)
+- ✅ **Total cost: $0/month** (just domain ~$1/month if you want custom domain)
+
+### Quick Deploy to Vercel
+
+1. Push your code to GitHub
+2. Import repository in [Vercel](https://vercel.com)
+3. Add environment variables
+4. Deploy!
+
+For detailed instructions, see [FREE_DEPLOYMENT.md](./FREE_DEPLOYMENT.md).
+
+## 💡 Features in Detail
 
 ### Error Explanation
 
 The AI analyzes errors using a structured prompt that includes:
-1. Plain English explanation
-2. Likely root causes
-3. Step-by-step fixes
-4. Prevention tips
+1. **Plain English explanation** - Understand what went wrong
+2. **Likely root causes** - Identify potential issues
+3. **Step-by-step fixes** - Clear resolution steps
+4. **Prevention tips** - Avoid similar errors in the future
 
 ### Usage Tracking
 
-- Free users: 3 explanations per day (resets at midnight)
-- Pro users: Unlimited explanations
+- **Anonymous users**: 2 explanations overall (tracked in localStorage)
+- **Signed-in users**: 3 explanations per day (resets at midnight)
+- **Pro users**: Unlimited explanations
 - Usage tracked in PostgreSQL with daily reset
 
 ### Subscription Management
 
 - Stripe Checkout for subscription creation
-- Webhook handles subscription updates
+- Webhook handles subscription updates automatically
 - Status stored in PostgreSQL
+- Easy cancellation with end-of-period access
 
-## License
+## 🤝 Contributing
 
-MIT
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Support
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-For issues or questions, please open an issue on GitHub.
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- AI powered by [OpenRouter](https://openrouter.ai)
+- Payments handled by [Stripe](https://stripe.com)
+- Authentication via [NextAuth.js](https://next-auth.js.org/)
 
 ---
 
-Built with ❤️ using Next.js, OpenRouter, and Stripe.
+<div align="center">
 
+**Built with ❤️ using Next.js, OpenRouter, and Stripe**
+
+[⭐ Star this repo](https://github.com/yourusername/errmate) if you find it helpful!
+
+</div>

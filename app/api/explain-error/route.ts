@@ -7,6 +7,8 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const FREE_LIMIT = 3;
 const ANONYMOUS_LIMIT = 2; // Overall (not monthly)
 
+export const dynamic = "force-dynamic";
+
 async function checkUsageLimit(userId: string): Promise<{ allowed: boolean; count: number }> {
   const subscription = await prisma.subscription.findUnique({
     where: { userId },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -48,7 +48,7 @@ const TECH_CONTEXTS: { value: TechContext; label: string; description: string }[
   { value: "Other", label: "Other", description: "Other technologies" },
 ];
 
-export default function AppPage() {
+function AppPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -917,5 +917,28 @@ export default function AppPage() {
         confirmLoading={cancelLoading}
       />
     </div>
+  );
+}
+
+export default function AppPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+        <Header />
+        <main className="flex-1 px-4 sm:px-6 py-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-center h-96">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    }>
+      <AppPageContent />
+    </Suspense>
   );
 }
