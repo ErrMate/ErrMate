@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Bug body -->
+  <rect x="18" y="18" width="20" height="24" rx="6" stroke="#1F2937" stroke-width="2"/>
+  <line x1="28" y1="18" x2="28" y2="12" stroke="#1F2937" stroke-width="2"/>
+
+  <!-- Bug legs -->
+  <line x1="18" y1="24" x2="12" y2="22" stroke="#1F2937" stroke-width="2"/>
+  <line x1="18" y1="30" x2="12" y2="30" stroke="#1F2937" stroke-width="2"/>
+  <line x1="18" y1="36" x2="12" y2="38" stroke="#1F2937" stroke-width="2"/>
+
+  <line x1="38" y1="24" x2="44" y2="22" stroke="#1F2937" stroke-width="2"/>
+  <line x1="38" y1="30" x2="44" y2="30" stroke="#1F2937" stroke-width="2"/>
+  <line x1="38" y1="36" x2="44" y2="38" stroke="#1F2937" stroke-width="2"/>
+
+  <!-- Error highlight -->
+  <circle cx="28" cy="30" r="3" fill="#DC2626"/>
+
+  <!-- Magnifying glass -->
+  <circle cx="42" cy="42" r="8" stroke="#DC2626" stroke-width="2"/>
+  <line x1="48" y1="48" x2="56" y2="56" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>
+</svg>
+
+
+
