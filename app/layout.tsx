@@ -7,12 +7,16 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  fallback: ["system-ui", "arial"],
+  adjustFontFallback: true,
 });
 
 const jetbrainsMono = JetBrains_Mono({ 
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
+  fallback: ["Courier New", "monospace"],
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
