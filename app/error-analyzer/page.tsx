@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -89,11 +89,12 @@ function AppPageContent() {
     title: "",
     message: "",
   });
+  const successHandledRef = useRef(false);
+  const [postCheckoutLoading, setPostCheckoutLoading] = useState(false);
 
   const fetchUsage = useCallback(async () => {
     try {
       if (session?.user?.id) {
-        // Logged in user - fetch from API
         const response = await fetch("/api/usage");
         if (response.ok) {
           const data = await response.json();
@@ -122,54 +123,13 @@ function AppPageContent() {
   }, [session]);
 
   useEffect(() => {
+    if (searchParams.get("success") === "true") return;
     fetchUsage();
-  }, [fetchUsage]);
+  }, [fetchUsage, searchParams]);
 
   useEffect(() => {
-    if (searchParams.get("success") === "true") {
-      setError("");
-      const pollSubscription = async (attempts = 0) => {
-        try {
-          const response = await fetch("/api/usage");
-          if (response.ok) {
-          const data = await response.json();
-          setUsageCount(data.count);
-          setIsPro(data.isPro);
-          setIsCanceling(data.isCanceling || false);
-          setCancelAt(data.cancelAt || null);
-          
-          if (data.isPro) {
-              setModal({
-                isOpen: true,
-                title: "Subscription Activated!",
-                message: "Your subscription has been successfully activated. You now have unlimited access to error explanations.",
-                type: "success",
-              });
-              router.replace("/error-analyzer");
-              return;
-            }
-          }
-        } catch (err) {
-          console.error("Failed to fetch usage:", err);
-        }
-        
-        if (attempts >= 10) {
-          setModal({
-            isOpen: true,
-            title: "Subscription Processing",
-            message: "Your subscription is being processed. Please refresh the page in a moment if your Pro status doesn't appear.",
-            type: "info",
-          });
-          router.replace("/error-analyzer");
-          return;
-        }
-        
-        setTimeout(() => pollSubscription(attempts + 1), 500);
-      };
-      
-      setTimeout(() => pollSubscription(), 1000);
-    }
-    if (searchParams.get("canceled") === "true") {
+    const canceled = searchParams.get("canceled") === "true";
+    if (canceled) {
       setModal({
         isOpen: true,
         title: "Checkout Canceled",
@@ -177,8 +137,70 @@ function AppPageContent() {
         type: "info",
       });
       router.replace("/error-analyzer");
+      return;
     }
-  }, [searchParams, router]);
+
+    const success = searchParams.get("success") === "true";
+    if (!success || successHandledRef.current) return;
+    successHandledRef.current = true;
+    setError("");
+    setPostCheckoutLoading(true);
+
+    const applyUsage = (data: { count?: number; limit?: number; isPro?: boolean; isCanceling?: boolean; cancelAt?: number | null }) => {
+      if (data.count !== undefined) setUsageCount(data.count);
+      if (data.limit !== undefined) setUsageLimit(data.limit ?? 3);
+      if (data.isPro !== undefined) setIsPro(data.isPro);
+      if (data.isCanceling !== undefined) setIsCanceling(data.isCanceling);
+      if (data.cancelAt !== undefined) setCancelAt(data.cancelAt ?? null);
+    };
+
+    (async () => {
+      const sessionId = searchParams.get("session_id") ?? undefined;
+      const syncUrl = sessionId
+        ? `/api/sync-subscription?session_id=${encodeURIComponent(sessionId)}`
+        : "/api/sync-subscription";
+
+      try {
+        const syncRes = await fetch(syncUrl);
+        if (syncRes.ok) {
+          const json = await syncRes.json();
+          if (json.usage) {
+            applyUsage(json.usage);
+            setPostCheckoutLoading(false);
+            if (json.usage.isPro) {
+              setModal({
+                isOpen: true,
+                title: "Subscription Activated!",
+                message: "Your subscription has been successfully activated. You now have unlimited access to error explanations.",
+                type: "success",
+              });
+            } else {
+              setModal({
+                isOpen: true,
+                title: "Subscription Processing",
+                message: "Your subscription is being processed. Please refresh the page in a moment if your Pro status doesn't appear.",
+                type: "info",
+              });
+            }
+            router.replace("/error-analyzer");
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Sync subscription failed:", err);
+      }
+
+      setPostCheckoutLoading(false);
+      fetchUsage();
+      setModal({
+        isOpen: true,
+        title: "Subscription Processing",
+        message: "Your subscription is being processed. Please refresh the page in a moment if your Pro status doesn't appear.",
+        type: "info",
+      });
+      router.replace("/error-analyzer");
+    })();
+  }, [searchParams, router, fetchUsage]);
 
   const handleUpgrade = async () => {
     setUpgradeLoading(true);
@@ -635,6 +657,20 @@ function AppPageContent() {
 
     return processMarkdown(text);
   };
+
+  if (postCheckoutLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white text-gray-900">
+        <Header />
+        <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent mx-auto mb-4" />
+            <p className="text-gray-600 font-medium">Activating your subscription...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white text-gray-900">
