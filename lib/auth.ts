@@ -21,5 +21,11 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/",
+    error: "/auth-error",
+  },
+  events: {
+    async signInError({ error }) {
+      console.error("[NextAuth] signInError:", error?.message ?? error);
+    },
   },
 };
