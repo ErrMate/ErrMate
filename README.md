@@ -133,6 +133,37 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 3. Add credits to your account
 4. Copy the API key to `OPENROUTER_API_KEY`
 
+### Supabase Database Setup
+
+**Important for Serverless Deployments (Vercel):**
+
+Supabase requires using a **connection pooler** for serverless environments. The direct connection (port 5432) will fail in production.
+
+1. **Get your connection strings from Supabase:**
+   - Go to your Supabase project → Settings → Database
+   - You'll see two connection strings:
+     - **Direct connection** (port 5432) - Use for local development only
+     - **Connection pooler** (port 6543) - **Required for Vercel/serverless**
+
+2. **For Local Development:**
+   ```env
+   DATABASE_URL=postgresql://postgres:password@db.xxx.supabase.co:5432/postgres
+   ```
+
+3. **For Production/Vercel (REQUIRED):**
+   ```env
+   DATABASE_URL=postgresql://postgres:password@db.xxx.supabase.co:6543/postgres?pgbouncer=true&sslmode=require
+   ```
+   
+   **Key differences:**
+   - Port `6543` instead of `5432`
+   - Add `?pgbouncer=true&sslmode=require` query parameters
+
+4. **Troubleshooting:**
+   - If you see "Can't reach database server" errors in production, you're likely using the direct connection (port 5432)
+   - Always use the pooler connection string (port 6543) for Vercel deployments
+   - The pooler connection string is found in Supabase Dashboard → Settings → Database → Connection Pooling
+
 ## 📁 Project Structure
 
 ```
